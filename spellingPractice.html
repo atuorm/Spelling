@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spelling Practice 4th Graders</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="./images/favicon.png" type="image/svg+xml">
+<meta name="msapplication-TileColor" content="#FFD60A">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=2EYZkljk"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Comic+Neue:wght@400;700&display=swap');
+    
+    * { box-sizing: border-box; }
+    
+    /* DASHBOARD LAYOUT SETUP */
+    body {
+        margin: 0; padding: 0;
+        font-family: 'Comic Neue', cursive;
+        height: 100vh; /* FORCE 1 SCREEN */
+        width: 100vw;
+        overflow: hidden; /* PREVENT SCROLL */
+        background-color: #87CEEB;
+        background-image: 
+            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4) 0%, transparent 20%),
+            radial-gradient(circle at 80% 50%, rgba(255,255,255,0.4) 0%, transparent 20%),
+            radial-gradient(circle at 40% 80%, rgba(255,255,255,0.4) 0%, transparent 20%);
+        background-size: 100vw 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        display: grid;
+        /* Header | Main Content | Footer */
+        grid-template-rows: auto 1fr auto; 
+        width: 96%;
+        height: 96vh;
+        max-width: 1400px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: 4px solid #E1F5FE;
+        padding: 20px;
+        gap: 15px;
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+    /* HEADER (Compact) */
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px dashed #B3E5FC;
+        padding-bottom: 10px;
+    }
+
+    h1 {
+        margin: 0;
+        color: #0288D1;
+        font-family: 'Bungee', cursive;
+        font-size: 2.2em; 
+        text-shadow: 2px 2px 0px #B3E5FC;
+    }
+
+    #timer {
+        font-family: 'Bungee', cursive;
+        color: #0277BD;
+        font-size: 1.4em;
+        margin: 0;
+    }
+
+    /* MAIN CONTENT GRID */
+    .content-area {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr; /* Game gets more space, Sidebar gets less */
+        gap: 30px;
+        overflow: hidden; /* Prevents internal scroll from breaking layout */
+        height: 100%;
+    }
+
+    /* LEFT SIDE: GAME ZONE */
+    .game-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        height: 100%;
+    }
+
+    /* Emoji Stage */
+    #emojiContainer {
+        width: 100%; 
+        max-width: 280px; 
+        height: 160px; 
+        background: radial-gradient(circle, #E1F5FE 0%, #B3E5FC 100%);
+        border-radius: 30px;
+        border: 4px solid #FFF;
+        box-shadow: inset 0 0 20px rgba(255,255,255,0.8), 0 5px 15px rgba(0,0,0,0.1);
+        display: flex; justify-content: center; align-items: center;
+    }
+    #dynamicEmoji { font-size: 90px; transition: opacity 0.4s; }
+    #dynamicEmoji.speaking { animation: pulse 1s infinite; }
+    #dynamicEmoji.bounce { animation: bounce 0.5s; }
+
+    /* Inputs & Buttons */
+    .input-group { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    
+    input {
+        padding: 12px;
+        font-size: 1.3em;
+        border-radius: 15px;
+        border: 3px solid #B3E5FC;
+        background: #FAFFA4;
+        width: 80%;
+        text-align: center;
+        font-family: 'Comic Neue', cursive;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+    input:focus { outline: none; border-color: #29B6F6; background: #FFF; transform: scale(1.02); }
+    input.error { border-color: #FF5252; background: #FFEBEE; animation: shake 0.4s; }
+
+    .button-row { display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap;}
+
+    button {
+        background: #FFCA28;
+        color: #3E2723;
+        padding: 10px 20px;
+        border: none;
+        border-bottom: 4px solid #FFA000;
+        border-radius: 15px;
+        cursor: pointer;
+        font-family: 'Bungee', cursive;
+        font-size: 1em;
+        transition: all 0.1s;
+    }
+    button:hover:not(:disabled) { transform: translateY(-2px); background: #FFD54F; }
+    button:active:not(:disabled) { transform: translateY(2px); border-bottom: 2px solid #FFA000; }
+    button:disabled { background: #E0E0E0; border-bottom: 4px solid #BDBDBD; color: #9E9E9E; cursor: not-allowed; transform: none;}
+
+    /* Feedback & Progress */
+    #feedback { 
+        font-size: 1.3em; 
+        font-weight: 700; 
+        margin: 0; 
+        min-height: 1.4em; 
+        text-align: center;
+        color: #01579B;
+        max-width: 90%;
+        line-height: 1.2;
+    }
+    #feedback.correct { color: #2E7D32; animation: bounce 0.6s; }
+    #feedback.incorrect { color: #C62828; }
+
+    .progress-container { width: 100%; text-align: center; }
+    .progress-bar { 
+        width: 80%; height: 20px; background: #ECEFF1; border-radius: 10px; 
+        margin: 5px auto; overflow: hidden; border: 1px solid #CFD8DC; 
+    }
+    .progress-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #4CAF50, #8BC34A); transition: width 0.5s; }
+    #progressText { font-size: 0.9em; color: #78909C; }
+
+    /* RIGHT SIDE: SIDEBAR (INTERNAL SCROLLING) */
+    .sidebar {
+        background: #F1F8E9;
+        border-radius: 20px;
+        padding: 15px;
+        border: 2px dashed #AED581;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        height: 100%; /* Fill available height */
+        overflow: hidden; /* Container handles scroll of children */
+    }
+
+    .scroll-area {
+        flex: 1;
+        overflow-y: auto; /* ONLY THE LIST SCROLLS */
+        padding-right: 5px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    /* Custom Scrollbar */
+    .scroll-area::-webkit-scrollbar { width: 8px; }
+    .scroll-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    .scroll-area::-webkit-scrollbar-thumb { background: #AED581; border-radius: 4px; }
+
+    .sidebar h3 { margin: 0 0 10px 0; color: #33691E; font-size: 1.2em; text-align: center; font-family: 'Bungee'; border-bottom: 2px solid #DCEDC8; padding-bottom: 5px;}
+    
+    ul, ol { margin: 0; padding-left: 25px; }
+    li { font-size: 1.1em; margin-bottom: 4px; color: #558B2F; }
+
+    /* --- CSS FIX: Force Retry List items to be Pink/Red --- */
+    #retryWordsList li { 
+        color: #E91E63; 
+        font-weight: bold;
+    }
+    
+    /* FOOTER */
+    .page-footer {
+        text-align: center;
+        color: #0277BD;
+        font-family: 'Bungee', cursive;
+        font-size: 1em;
+        border-top: 2px dashed #B3E5FC;
+        padding-top: 10px;
+    }
+
+    /* Animations */
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    @keyframes confettiFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+    .confetti { position: fixed; width: 10px; height: 10px; pointer-events: none; z-index: 9999; }
+
+    /* UTILITIES */
+    #retrySection { transition: opacity 0.3s; }
+    #retrySection.typing { opacity: 0 !important; pointer-events: none !important; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>✨ Spelling Practice</h1>
+        <p id="timer">Time: 0</p>
+    </header>
+
+    <div class="content-area">
+        
+        <div class="game-zone">
+            <div class="input-group">
+                <input type="text" id="userName" placeholder="Enter Player Name" aria-label="Enter your name">
+                <div class="button-row">
+                    <button onclick="startGame()">▶ Start</button>
+                    <button onclick="restartGame()">↺ Reset</button>
+                </div>
+            </div>
+
+            <div id="emojiContainer"><span id="dynamicEmoji">❓</span></div>
+            
+            <div class="button-row">
+                <button onclick="sayWord()" disabled style="background: #29B6F6; border-bottom-color: #0288D1; color: white; width: 100%;">🗣️ Say Word</button>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="Type here..." autocorrect="off" autocomplete="off" autocapitalize="none" spellcheck="false" disabled>
+                <button onclick="checkSpelling()" disabled style="background: #66BB6A; border-bottom-color: #388E3C; color: white; width: 60%;">✅ Check</button>
+            </div>
+            
+            <p id="feedback" role="alert">Welcome!</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+                <div id="progressText">Ready to play?</div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="scroll-area">
+                <div id="scoreboardContainer">
+                    <h3>🏆 Top 5 Times</h3>
+                    <ol id="scoreboard"></ol>
+                </div>
+                
+                <hr style="border: 0; border-top: 2px dashed #AED581; margin: 15px 0;">
+
+                <div id="retrySection" style="opacity:0; pointer-events:none;">
+                    <h3 style="color:#E91E63;">🔄 Retry List</h3>
+                    <ul id="retryWordsList"></ul>
+                </div>
+
+                <div id="correctWordsContainer" style="margin-top: 15px;">
+                    <h3>⭐ Star Words</h3>
+                    <ul id="correctWordsList"></ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">
+        <span id="currentDateDisplay">Loading Date...</span>
+    </footer>
+</div>
+
+<audio id="correctSound" src="sounds/button-3.mp3" preload="auto"></audio>
+<audio id="incorrectSound" src="sounds/button-10.mp3" preload="auto"></audio>
+<audio id="completionSound" src="sounds/cheer.mp3" preload="auto"></audio>
+
+<script>
+// ====================== DATE LOGIC ======================
+function updateDate() {
+    const dateElement = document.getElementById('currentDateDisplay');
+    const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+    dateElement.textContent = "📅 " + new Date().toLocaleDateString('en-US', options);
+}
+updateDate();
+
+// ====================== PROFANITY FILTER & DATA ======================
+const encodedProfanity = ['YXNz','Yml0Y2g=','YmFzdGFyZA==','ZGFtbg==','Y3JhcA==','ZnVjaw==','c2hpdA==','cGlzcw==','Y29jaw==','ZGljaw==','ZmFn','bmlnZw==','dHdhdA==','d2Fuaw==','YXJzZQ==','Ym9sbG9jaw==','YnVnZ2Vy','Y3VudA==','a25vYg==','cHJpY2s=','dGl0','c2x1dA==','d2hvcmU=','ZnVr','ZnVj','ZmNr','c2gxdA==','YjF0Y2g='];
+let profaneSet = null, profaneRegex = null; window.FUN_REPLACEMENTS = {};
+window.addEventListener('load',()=>{const worker=new Worker(URL.createObjectURL(new Blob([`self.onmessage=()=>{const l=${JSON.stringify(encodedProfanity)};self.postMessage(l.map(b=>atob(b).toLowerCase()))}`],{pe:'application/javascript'})));
+worker.onmessage=e=>{profaneSet=new Set(e.data);profaneRegex=new RegExp('\\b('+[...profaneSet].join('|')+')\\b','gi');window.FUN_REPLACEMENTS=[...profaneSet].reduce((m,w,i)=>(m[w]=['***','bananas','darn','fudge','waffle','toad'][i%6],m),{});worker.terminate();};
+worker.onerror=()=>{profaneSet=new Set();profaneRegex=/(?!)/;worker.terminate();};worker.postMessage(null);});
+
+const wordEmojiMap = {"coward":"🐔","boundary":"⚪","foundation":"🏗️","announce":"📢","boycott":"🚫","voyage":"🛳️","exploit":"💡","poison":"☠️","toil":"⚒️","decoy":"🦆","scrounge":"🧹","moist":"💧","choice":"✅","boil":"🍲","ouch":"🤕","scout":"🧭","allow":"👍","sour":"🍋","browser":"🌐","outline":"✍️","corduroy":"👖","annoyance":"😠","trapezoid":"🔷"};
+const spellingWords = Object.keys(wordEmojiMap);
+
+let mainWords=[], missedWords=[], currentList=[], currentWordIndex=0, startTime=null, elapsedTime=0, timerInterval=null, userName="", isRetryPhase=false;
+
+function speakText(t,r=0.9,p=1.2,cb=null){if(typeof responsiveVoice!='undefined'){responsiveVoice.cancel();responsiveVoice.speak(t,'UK English Female',{rate:r,pitch:p,onend:cb});}else{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=r;u.pitch=p;if(cb)u.onend=cb;speechSynthesis.speak(u);}}
+
+document.getElementById('userInput').addEventListener('input',function(){
+    if(window.FUN_REPLACEMENTS){let v=this.value;for(const [bad,good]of Object.entries(window.FUN_REPLACEMENTS))v=v.replace(new RegExp('\\b'+bad+'\\b','gi'),good);if(profaneRegex)v=v.replace(profaneRegex,'***');this.value=v;}
+    if (isRetryPhase) document.getElementById('retrySection').classList.add('typing');
+});
+
+document.getElementById('userInput').addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.target.disabled){e.preventDefault();checkSpelling();}});
+
+const feedbackMessages={correct:["Yay! Correct!","Wow, Superstar!","Super job!","Fantastic!","Amazing work!","Woohoo!"],incorrect:["Oops! Try again!","Almost!","Don't worry!","Keep trying!","Keep at it!","Not quite!"]};
+function getFeedback(ok){return(ok?feedbackMessages.correct:feedbackMessages.incorrect)[Math.floor(Math.random()*6)];}
+
+function sayWord(){
+    if(currentWordIndex>=currentList.length)return;
+    const word=currentList[currentWordIndex];
+    const el=document.getElementById('dynamicEmoji');
+    el.textContent=wordEmojiMap[word.toLowerCase()]||'❓';
+    el.classList.add('show','speaking');
+    speakText(word,0.8,1.1,()=>el.classList.remove('speaking'));
+}
+
+function addToRetryList(word){
+    if(document.querySelector(`#retryWordsList li[data-word="${word}"]`))return;
+    const li=document.createElement('li');li.textContent=word;li.dataset.word=word;
+    document.getElementById('retryWordsList').appendChild(li);
+}
+
+function graduateWord(word){
+    const section = document.getElementById('retrySection');
+    section.classList.remove('typing');
+    const old = document.querySelector(`#retryWordsList li[data-word="${word}"]`);
+    if(old){ old.style.opacity = 0; setTimeout(()=>old.remove(),600); }
+    const li = document.createElement('li');
+    li.textContent = "✓ " + word; 
+    document.getElementById('correctWordsList').appendChild(li);
+    // Auto scroll to bottom of list
+    const scrollArea = document.querySelector('.scroll-area');
+    scrollArea.scrollTop = scrollArea.scrollHeight;
+}
+
+function checkSpelling(){
+    const input=document.getElementById('userInput');
+    const val=input.value.trim().toLowerCase();
+    const word=currentList[currentWordIndex];
+    const fb=document.getElementById('feedback');
+    
+    if(!val){
+        fb.textContent='Enter a word!';
+        fb.classList.add('incorrect');
+        input.classList.add('error');
+        setTimeout(()=>input.classList.remove('error'),300);
+        return;
+    }
+
+    if(val===word.toLowerCase()){
+        fb.textContent='Correct!';
+        fb.classList.add('correct');fb.classList.remove('incorrect');
+        document.getElementById('correctSound').play();
+        fireConfetti();
+        
+        // === LOGIC FIX: Prevent duplicates in Star Words ===
+        if(isRetryPhase){
+            graduateWord(word);
+        } else {
+            // Only add to Star Words if they haven't missed it already
+            if(!missedWords.includes(word)){
+                const li=document.createElement('li');
+                li.textContent="✓ " + word;
+                document.getElementById('correctWordsList').appendChild(li);
+                const scrollArea = document.querySelector('.scroll-area');
+                scrollArea.scrollTop = scrollArea.scrollHeight;
+            }
+        }
+
+        currentWordIndex++;
+        input.value='';
+        document.getElementById('dynamicEmoji').classList.remove('show');
+        
+        if(currentWordIndex<currentList.length){
+            const txt=getFeedback(true);
+            fb.textContent=txt;
+            document.getElementById('dynamicEmoji').classList.add('bounce');
+            speakText(txt,0.9,1.2,()=>{
+                document.getElementById('dynamicEmoji').classList.remove('bounce');
+                updateProgress();
+                sayWord();
+            });
+        } else {
+            !isRetryPhase && missedWords.length > 0 ? startRetryPhase() : finishGame();
+        }
+    } else {
+        fb.textContent=getFeedback(false);
+        fb.classList.add('incorrect');fb.classList.remove('correct');
+        document.getElementById('incorrectSound').play();
+        speakText(getFeedback(false));
+        if(!isRetryPhase && !missedWords.includes(word)){
+            missedWords.push(word);
+            addToRetryList(word);
+        }
+    }
+}
+
+function startRetryPhase(){
+    isRetryPhase = true;
+    currentList = missedWords;
+    currentWordIndex = 0;
+    document.getElementById('feedback').textContent = "Let's try again!";
+    speakText("Round two! You can do it!", 0.9, 1.3);
+    const section = document.getElementById('retrySection');
+    section.style.opacity = 1;
+    section.style.pointerEvents = "auto";
+    updateProgress();
+    sayWord();
+}
+
+function finishGame(){
+    stopTimer();
+    saveScore(userName,elapsedTime);
+    const empty = document.getElementById('retryWordsList').children.length === 0;
+    if(empty){
+        document.getElementById('retrySection').style.opacity=0;
+        setTimeout(()=>document.getElementById('retrySection').style.pointerEvents="none",1200);
+    }
+    
+    const challengeMsg = `Awesome job, ${userName}! You finished in ${elapsedTime} seconds. Can you beat that time?`;
+    
+    const feedbackEl = document.getElementById('feedback');
+    feedbackEl.textContent = challengeMsg;
+    feedbackEl.style.color = "#E91E63"; 
+    
+    speakText(challengeMsg, 1, 1.2, () => document.getElementById('completionSound').play());
+    
+    document.getElementById('progressText').textContent='Completed!';
+    document.getElementById('progressBarFill').style.width='100%';
+    document.querySelector("button[onclick='checkSpelling()']").disabled=true;
+    document.querySelector("button[onclick='sayWord()']").disabled=true;
+}
+
+function startGame(){
+    const raw=document.getElementById('userName').value.trim();
+    userName=raw.slice(0,20);
+    if(!userName||!/^[a-zA-Z0-9\s'-]+$/.test(userName)){alert('Please type a valid name!');return;}
+    if(profaneSet){const clean=userName.toLowerCase().replace(/[^a-z0-9]/g,'');for(const bad of profaneSet)if(clean.includes(bad)){alert("Let's use a kind name!");return;}}
+    
+    mainWords=[...spellingWords].sort(()=>Math.random()-0.5);
+    missedWords=[];
+    currentList=mainWords;
+    currentWordIndex=0;
+    isRetryPhase=false;
+    
+    document.getElementById('correctWordsList').innerHTML='';
+    document.getElementById('retryWordsList').innerHTML='';
+    const retrySec = document.getElementById('retrySection');
+    retrySec.style.opacity=0;
+    retrySec.style.pointerEvents="none";
+    retrySec.classList.remove('typing');
+
+    const greet=`Hi ${userName}! Let's play!`;
+    document.getElementById('feedback').textContent=greet;
+    document.getElementById('feedback').style.color = "#01579B"; 
+    speakText(greet,0.9,1.2);
+    
+    document.getElementById('userInput').disabled=false;
+    document.querySelector("button[onclick='checkSpelling()']").disabled=false;
+    document.querySelector("button[onclick='sayWord()']").disabled=false;
+    document.getElementById('progressBarFill').style.width='0%';
+    
+    startTimer();
+    updateProgress();
+    sayWord();
+}
+
+function restartGame(){
+    clearInterval(timerInterval);
+    elapsedTime=0;
+    document.getElementById('timer').textContent='Time: 0';
+    document.getElementById('userInput').value='';
+    document.getElementById('feedback').textContent='Welcome!';
+    document.getElementById('feedback').style.color = "#01579B"; 
+    document.getElementById('userInput').disabled=true;
+    document.querySelector("button[onclick='checkSpelling()']").disabled=true;
+    document.querySelector("button[onclick='sayWord()']").disabled=true;
+    document.getElementById('dynamicEmoji').textContent='❓';
+}
+
+function startTimer(){startTime=Date.now();timerInterval=setInterval(()=>{elapsedTime=Math.floor((Date.now()-startTime)/1000);document.getElementById('timer').textContent=`Time: ${elapsedTime}`;},1000);}
+function stopTimer(){clearInterval(timerInterval);}
+function updateProgress(){const t=currentList.length;const p=t===0?100:(currentWordIndex/t)*100;document.getElementById('progressBarFill').style.width=p+'%';document.getElementById('progressText').textContent=`Word ${currentWordIndex+1} of ${t}`;}
+
+// === SCOREBOARD LOGIC (TOP 5 ONLY) ===
+function saveScore(n,t){
+    let s=JSON.parse(localStorage.getItem('scores')||'[]');
+    s.push({name:n,time:t});
+    s.sort((a,b)=>a.time-b.time); // Sort by fastest time
+    localStorage.setItem('scores',JSON.stringify(s.slice(0,5))); // Keep only Top 5
+    updateScoreboard();
+}
+
+function updateScoreboard(){
+    const sb=document.getElementById('scoreboard');
+    sb.innerHTML='';
+    JSON.parse(localStorage.getItem('scores')||'[]').forEach(sc=>{
+        const li=document.createElement('li');
+        li.textContent=`${sc.name}: ${sc.time} s`;
+        sb.appendChild(li);
+    });
+}
+updateScoreboard();
+
+function fireConfetti(){
+    const colors = ['#FF1744','#FF4081','#E040FB','#7C4DFF','#536DFE','#40C4FF','#26C6DA','#4CAF50','#8BC34A','#FFCA28','#FF9100','#FF5722','#D500F9','#00E5FF','#FFD600'];
+    const shapes = ['circle','star','square'];
+    for(let i = 0; i < 60; i++){
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const size = Math.random() * 12 + 8;
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = '-20px';
+        c.style.width = size + 'px';
+        c.style.height = size + 'px';
+        c.style.backgroundColor = color;
+        const duration = Math.random() * 2 + 1.5; 
+        const delay = Math.random() * 1.5; 
+        c.style.animation = `confettiFall ${duration}s linear forwards ${delay}s`;
+        c.style.borderRadius = shape === 'circle' ? '50%' : '0';
+        if(shape === 'star') c.style.clipPath = 'polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';
+        if(shape === 'square') c.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 5000);
+    }
+}
+</script>
+</body>
+</html>
